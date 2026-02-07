@@ -22,7 +22,7 @@ const neighborhoodCenters = {
     "Whittier Heights": [-122.3687, 47.6956], "Windermere": [-122.2678, 47.6705], "Yesler Terrace": [-122.3203, 47.6035],
 };
 
-// 3. Full Analytics Data for Every Neighborhood
+// 3. Analytics Data
 const neighborhoodData = {
     "Adams": { score: 2610, count: 1037, topIssue: "Curb Ramp" },
     "Atlantic": { score: 2720, count: 1165, topIssue: "Curb Ramp" },
@@ -74,6 +74,12 @@ const neighborhoodData = {
     "Whittier Heights": { score: 9056, count: 2684, topIssue: "No Sidewalk" },
     "Windermere": { score: 1993, count: 696, topIssue: "No Sidewalk" },
     "Yesler Terrace": { score: 1273, count: 453, topIssue: "Curb Ramp" },
+};
+
+// Global toggle function
+window.toggleNote = function() {
+    const note = document.getElementById('index-note');
+    note.style.display = (note.style.display === 'none' || note.style.display === '') ? 'block' : 'none';
 };
 
 const defaultStatsHTML = `
@@ -142,7 +148,7 @@ function updateMapFilters() {
 
 document.getElementById('severity-filter').addEventListener('input', updateMapFilters);
 
-// 6. Neighborhood Logic (STATS UPDATE)
+// 6. Neighborhood Logic
 document.getElementById('neighborhood-select').addEventListener('change', (e) => {
     updateMapFilters();
     const selected = e.target.value;
@@ -156,11 +162,22 @@ document.getElementById('neighborhood-select').addEventListener('change', (e) =>
         const data = neighborhoodData[selected];
         if (data) {
             document.getElementById('stats-panel').innerHTML = `
-                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #444;">
-                    <p style="margin-top:0;"><strong>Neighborhood:</strong> ${selected}</p>
-                    <p><strong>Accessibility Index:</strong> ${data.score.toLocaleString()}</p>
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid #444;">
+                    <p style="margin-top:0; font-size:14px;"><strong>${selected}</strong></p>
+                    
+                    <p style="margin-bottom:2px;">
+                        <strong>Accessibility Index:</strong> ${data.score.toLocaleString()}
+                        <span onclick="toggleNote()" style="cursor:pointer; margin-left:5px; background:#444; border-radius:50%; width:15px; height:15px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; border:1px solid #888; color:white;" title="Click for info">i</span>
+                    </p>
+                    
+                    <div id="index-note" style="display:none; background:#222; padding:8px; border:1px solid #555; border-radius:4px; font-size:10px; color:#ccc; margin-bottom:10px; position:relative;">
+                        The Index is the sum of all barrier severity scores. A higher score means more "Mobility Friction" for pedestrians.
+                        <span onclick="toggleNote()" style="position:absolute; top:2px; right:5px; cursor:pointer; color:#ff0055; font-weight:bold;">×</span>
+                    </div>
+
                     <p><strong>Total Barriers:</strong> ${data.count.toLocaleString()}</p>
                     <p><strong>Primary Issue:</strong> ${data.topIssue}</p>
+                    
                     <button onclick="location.reload()" style="
                         margin-top: 15px; 
                         width: 100%; 
@@ -170,9 +187,10 @@ document.getElementById('neighborhood-select').addEventListener('change', (e) =>
                         cursor: pointer; 
                         font-weight: bold;
                         font-size: 11px; 
-                        padding: 8px 5px;
+                        padding: 10px 5px;
                         border-radius: 4px;
-                        transition: background 0.2s;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
                     ">RESET DASHBOARD</button>
                 </div>
             `;
@@ -200,7 +218,7 @@ map.on('click', 'barrier-points', (e) => {
                 <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Neighborhood</p>
                 <p style="margin: 0 0 8px 0; font-weight: bold;">${props.neighborhood}</p>
                 <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Severity Score</p>
-                <p style="margin: 0; font-weight: bold;">${props.severity} / 5</p>
+                <p style="margin: 0; font-weight: bold;">${props.severity || 1} / 5</p>
             </div>
         </div>
     `).addTo(map);
