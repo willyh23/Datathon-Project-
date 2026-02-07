@@ -17,7 +17,11 @@
     <div class="filter-section">
         <h3>View Mode</h3>
         <label><input type="radio" name="viz" value="heatmap" checked> Heatmap (Density)</label><br>
-        <label><input type="radio" name="viz" value="points"> Individual Barriers</label>
+    
+        <label>
+            <input type="radio" name="viz" value="points"> Individual Barriers
+            <span class="zoom-hint">(Zoom in to see points)</span>
+        </label>
     </div>
 
     <div class="filter-section">
@@ -29,7 +33,7 @@
     <div class="filter-section">
         <h3>Jump to Neighborhood</h3>
         <select id="neighborhood-select">
-            <option value="all">All Seattle</option>
+            <option value="all">All Seattle (Reset View)</option>
             <option value="Adams">Adams</option>
             <option value="Atlantic">Atlantic</option>
             <option value="Belltown">Belltown</option>

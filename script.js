@@ -1,34 +1,84 @@
 // 1. Mapbox Access Token
 mapboxgl.accessToken = 'pk.eyJ1Ijoid2lsbHloMjMiLCJhIjoiY21obDBjN2ttMW1kdDJxcHI3a2s3YjR1dCJ9.1afNW3K_mxg4u55J1MPeaA';
 
-// 2. Initialize the Map
+// 2. Neighborhood Center Points (Calculated from CSV for 100% reliable jumping)
+const neighborhoodCenters = {
+    "Adams": [-122.3859, 47.6705],
+    "Atlantic": [-122.3041, 47.5940],
+    "Belltown": [-122.3436, 47.6159],
+    "Briarcliff": [-122.4087, 47.6445],
+    "Broadway": [-122.3208, 47.6221],
+    "Bryant": [-122.2869, 47.6752],
+    "Central Business District": [-122.3349, 47.6078],
+    "East Queen Anne": [-122.3504, 47.6359],
+    "Eastlake": [-122.3252, 47.6420],
+    "First Hill": [-122.3244, 47.6098],
+    "Fremont": [-122.3529, 47.6575],
+    "Green Lake": [-122.3355, 47.6894],
+    "Harbor Island": [-122.3539, 47.5778],
+    "Harrison/Denny-Blaine": [-122.2881, 47.6232],
+    "Industrial District": [-122.3551, 47.5549],
+    "Interbay": [-122.3835, 47.6464],
+    "International District": [-122.3230, 47.5982],
+    "Laurelhurst": [-122.2785, 47.6602],
+    "Lawton Park": [-122.3983, 47.6570],
+    "Leschi": [-122.2908, 47.6001],
+    "Lower Queen Anne": [-122.3548, 47.6258],
+    "Loyal Heights": [-122.3844, 47.6883],
+    "Madison Park": [-122.2828, 47.6345],
+    "Madrona": [-122.2895, 47.6135],
+    "Mann": [-122.2993, 47.6120],
+    "Minor": [-122.3090, 47.6083],
+    "Montlake": [-122.3085, 47.6398],
+    "Mount Baker": [-122.2804, 47.5588],
+    "North Beacon Hill": [-122.3082, 47.5771],
+    "North Queen Anne": [-122.3652, 47.6458],
+    "Phinney Ridge": [-122.3539, 47.6748],
+    "Pike-Market": [-122.3417, 47.6098],
+    "Pioneer Square": [-122.3322, 47.6001],
+    "Portage Bay": [-122.3200, 47.6463],
+    "Ravenna": [-122.2994, 47.6959],
+    "Roosevelt": [-122.3175, 47.6970],
+    "Sand Point": [-122.2613, 47.6793],
+    "South Lake Union": [-122.3375, 47.6231],
+    "Southeast Magnolia": [-122.3922, 47.6408],
+    "Stevens": [-122.3052, 47.6265],
+    "Sunset Hill": [-122.3992, 47.6829],
+    "University District": [-122.3115, 47.6621],
+    "View Ridge": [-122.2802, 47.6894],
+    "Wallingford": [-122.3338, 47.6602],
+    "West Queen Anne": [-122.3670, 47.6348],
+    "West Woodland": [-122.3685, 47.6685],
+    "Westlake": [-122.3418, 47.6328],
+    "Whittier Heights": [-122.3687, 47.6956],
+    "Windermere": [-122.2678, 47.6705],
+    "Yesler Terrace": [-122.3203, 47.6035],
+};
+
+// 3. Initialize the Map
 const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/mapbox/dark-v11', 
     center: [-122.3321, 47.6062], // Seattle coordinates
     zoom: 11,
-    pitch: 45 // 3D tilt
+    pitch: 45 
 });
 
-// 3. Load Data and Layers
+// 4. Load Data and Layers
 map.on('load', () => {
     map.addSource('accessibility-data', {
         type: 'geojson',
         data: 'data/Access_to_Everyday_Life.geojson' 
     });
 
-    // Heatmap Layer: Visualizes density of issues
+    // Heatmap Layer
     map.addLayer({
         id: 'barrier-heat',
         type: 'heatmap',
         source: 'accessibility-data',
         maxzoom: 15,
         paint: {
-            'heatmap-weight': [
-                'interpolate', ['linear'], ['coalesce', ['get', 'severity'], 1],
-                0, 0,
-                5, 1
-            ],
+            'heatmap-weight': ['interpolate', ['linear'], ['coalesce', ['get', 'severity'], 1], 0, 0, 5, 1],
             'heatmap-color': [
                 'interpolate', ['linear'], ['heatmap-density'],
                 0, 'rgba(33,102,172,0)',
@@ -38,36 +88,20 @@ map.on('load', () => {
                 0.8, 'rgb(239,138,98)',
                 1, 'rgb(178,24,43)'
             ],
-            'heatmap-intensity': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 1,
-                15, 3
-            ],
-            'heatmap-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 2, 
-                15, 20
-            ],
-            'heatmap-opacity': [
-                'interpolate', ['linear'], ['zoom'],
-                13, 0.8,
-                15, 0 
-            ]
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 11, 1, 15, 3],
+            'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 11, 2, 15, 20],
+            'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.8, 15, 0]
         }
     });
 
-    // Point Layer: Individual markers visible when zoomed in
+    // Point Layer
     map.addLayer({
         id: 'barrier-points',
         type: 'circle',
         source: 'accessibility-data',
         minzoom: 13,
         paint: {
-            'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                13, 1,
-                16, 8
-            ],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 1, 16, 8],
             'circle-color': [
                 'interpolate', ['linear'], ['get', 'severity'],
                 1, '#00ffcc', 
@@ -79,57 +113,57 @@ map.on('load', () => {
         }
     });
 
-    // Initial state: Start with heatmap visible, points hidden
     map.setLayoutProperty('barrier-points', 'visibility', 'none');
 });
 
-// 4. Combined Filter Logic (This fixes the Slider and Dropdown)
+// 5. Combined Filter Logic
 function updateMapFilters() {
-    // Get values from the HTML elements
     const minSeverity = parseInt(document.getElementById('severity-filter').value);
     const neighborhood = document.getElementById('neighborhood-select').value;
 
-    // Build the filter array
     let filters = ['all', ['>=', ['get', 'severity'], minSeverity]];
 
-    // If a neighborhood is selected, add it to the filter
     if (neighborhood !== 'all') {
         filters.push(['==', ['get', 'neighborhood'], neighborhood]);
     }
 
-    // Apply the combined filter to both layers
     if (map.getLayer('barrier-heat')) map.setFilter('barrier-heat', filters);
     if (map.getLayer('barrier-points')) map.setFilter('barrier-points', filters);
 
-    // Update the number text next to the slider
     document.getElementById('sev-val').innerText = minSeverity + "+";
 }
 
-// 5. Setup UI Event Listeners
+// 6. UI Event Listeners
 
 // Severity Slider
 document.getElementById('severity-filter').addEventListener('input', updateMapFilters);
 
-// Neighborhood Dropdown
+// Neighborhood Dropdown (Fixed Jump & Reset Logic)
 document.getElementById('neighborhood-select').addEventListener('change', (e) => {
     updateMapFilters();
     
-    // Fly to the neighborhood when selected
-    if (e.target.value !== 'all') {
-        const features = map.querySourceFeatures('accessibility-data', {
-            filter: ['==', ['get', 'neighborhood'], e.target.value]
+    const selected = e.target.value;
+
+    if (selected === 'all') {
+        // RESET: Zoom back out to Seattle
+        map.flyTo({
+            center: [-122.3321, 47.6062],
+            zoom: 11,
+            pitch: 45,
+            essential: true
         });
-        if (features.length > 0) {
-            map.flyTo({
-                center: features[0].geometry.coordinates,
-                zoom: 14,
-                essential: true
-            });
-        }
+    } else if (neighborhoodCenters[selected]) {
+        // JUMP: Fly to the pre-calculated center of that neighborhood
+        map.flyTo({
+            center: neighborhoodCenters[selected],
+            zoom: 14.5,
+            speed: 1.2,
+            essential: true
+        });
     }
 });
 
-// Heatmap/Points Toggle Buttons
+// Toggle Buttons
 document.querySelectorAll('input[name="viz"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         const value = e.target.value;
@@ -143,12 +177,10 @@ document.querySelectorAll('input[name="viz"]').forEach(radio => {
     });
 });
 
-// 6. Interactive Popups (Simplified to Neighborhood, Severity, and Label)
+// 7. Simplified Popups
 map.on('click', 'barrier-points', (e) => {
     const props = e.features[0].properties;
     const coordinates = e.features[0].geometry.coordinates.slice();
-    
-    // Formatting "NoCurbRamp" -> "No Curb Ramp"
     const cleanType = props.label_type.replace(/([A-Z])/g, ' $1').trim();
 
     new mapboxgl.Popup()
@@ -169,6 +201,6 @@ map.on('click', 'barrier-points', (e) => {
         .addTo(map);
 });
 
-// 7. Mouse interactions
+// 8. Mouse interactions
 map.on('mouseenter', 'barrier-points', () => { map.getCanvas().style.cursor = 'pointer'; });
 map.on('mouseleave', 'barrier-points', () => { map.getCanvas().style.cursor = ''; });
