@@ -12,111 +12,119 @@
 
 <div id="sidebar">
     <h1>Seattle Mobility</h1>
-    <p class="subtitle">DubsTech Datathon 2026: Accessibility Analysis</p>
+    <p class="subtitle">DubsTech Datathon 2026</p>
 
     <div class="filter-section">
-        <h3>View Mode</h3>
+        <h3>Map Layers</h3>
         <label><input type="radio" name="viz" value="heatmap" checked> Heatmap (Density)</label><br>
-    
-        <label>
-            <input type="radio" name="viz" value="points"> Individual Barriers
-            <span class="zoom-hint">(Zoom in to see points)</span>
-        </label>
+        <label><input type="radio" name="viz" value="points"> Individual Barriers</label>
     </div>
 
-    <div class="filter-section">
-        <h3>Filter by Severity</h3>
-        <input type="range" id="severity-filter" min="1" max="5" value="1" step="1">
-        <p>Showing Severity: <span id="sev-val">1+</span></p>
-    </div>
+    <details class="insight-details" open>
+        <summary>Neighborhood Analysis</summary>
+        <div class="filter-section">
+            <select id="neighborhood-select" style="width:100%; margin-bottom: 10px;">
+                <option value="all">All Seattle (Reset View)</option>
+                <option value="Adams">Adams</option>
+                <option value="Atlantic">Atlantic</option>
+                <option value="Belltown">Belltown</option>
+                <option value="Briarcliff">Briarcliff</option>
+                <option value="Broadway">Broadway</option>
+                <option value="Bryant">Bryant</option>
+                <option value="Central Business District">Central Business District</option>
+                <option value="East Queen Anne">East Queen Anne</option>
+                <option value="Eastlake">Eastlake</option>
+                <option value="First Hill">First Hill</option>
+                <option value="Fremont">Fremont</option>
+                <option value="Green Lake">Green Lake</option>
+                <option value="Harbor Island">Harbor Island</option>
+                <option value="Harrison/Denny-Blaine">Harrison/Denny-Blaine</option>
+                <option value="Industrial District">Industrial District</option>
+                <option value="Interbay">Interbay</option>
+                <option value="International District">International District</option>
+                <option value="Laurelhurst">Laurelhurst</option>
+                <option value="Lawton Park">Lawton Park</option>
+                <option value="Leschi">Leschi</option>
+                <option value="Lower Queen Anne">Lower Queen Anne</option>
+                <option value="Loyal Heights">Loyal Heights</option>
+                <option value="Madison Park">Madison Park</option>
+                <option value="Madrona">Madrona</option>
+                <option value="Mann">Mann</option>
+                <option value="Minor">Minor</option>
+                <option value="Montlake">Montlake</option>
+                <option value="Mount Baker">Mount Baker</option>
+                <option value="North Beacon Hill">North Beacon Hill</option>
+                <option value="North Queen Anne">North Queen Anne</option>
+                <option value="Phinney Ridge">Phinney Ridge</option>
+                <option value="Pike-Market">Pike-Market</option>
+                <option value="Pioneer Square">Pioneer Square</option>
+                <option value="Portage Bay">Portage Bay</option>
+                <option value="Ravenna">Ravenna</option>
+                <option value="Roosevelt">Roosevelt</option>
+                <option value="Sand Point">Sand Point</option>
+                <option value="South Lake Union">South Lake Union</option>
+                <option value="Southeast Magnolia">Southeast Magnolia</option>
+                <option value="Stevens">Stevens</option>
+                <option value="Sunset Hill">Sunset Hill</option>
+                <option value="University District">University District</option>
+                <option value="View Ridge">View Ridge</option>
+                <option value="Wallingford">Wallingford</option>
+                <option value="West Queen Anne">West Queen Anne</option>
+                <option value="West Woodland">West Woodland</option>
+                <option value="Westlake">Westlake</option>
+                <option value="Whittier Heights">Whittier Heights</option>
+                <option value="Windermere">Windermere</option>
+                <option value="Yesler Terrace">Yesler Terrace</option>
+            </select>
+            
+            <div id="stats-panel">
+                <p><strong>Total Barriers:</strong> 81,973</p>
+                <p><strong>Most Common Issue:</strong> Curb Ramps</p>
+                <p><strong>Top Priority Area:</strong> Industrial District</p>
+                <div class="mini-chart-container" style="margin-top: 15px;">
+                    <div style="background: #444; height: 8px; width: 100%; border-radius: 4px; overflow: hidden; display: flex;">
+                        <div style="width: 33%; background: #ff0055;"></div>
+                        <div style="width: 23%; background: #fbb03b;"></div>
+                        <div style="width: 44%; background: #00ffcc;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
+
+    <details class="insight-details">
+        <summary>Top 5 Priority Zones</summary>
+        <table class="leaderboard">
+            <tr><td>1. Industrial District</td><td>36.9k</td></tr>
+            <tr><td>2. Ravenna</td><td>17.8k</td></tr>
+            <tr><td>3. Mount Baker</td><td>13.3k</td></tr>
+            <tr><td>4. Wallingford</td><td>11.1k</td></tr>
+            <tr><td>5. North Beacon Hill</td><td>10.8k</td></tr>
+        </table>
+        <p style="font-size:10px; color:#888; padding: 0 10px 10px 10px;">*Ranked by Accessibility Index (Severity Sum)</p>
+    </details>
+
+    <details class="insight-details">
+        <summary>The Human Impact</summary>
+        <div class="impact-box">
+            <p><strong>Missing Curb Ramps:</strong></p>
+            <p>A wheelchair user must travel an average of 3 extra blocks to find a safe crossing in high-density areas.</p>
+            <hr style="border:0; border-top:1px solid #444; margin:8px 0;">
+            <p><strong>Surface Problems:</strong></p>
+            <p>High risk for elderly residents and those using canes or walkers, especially in <em>North Beacon Hill</em>.</p>
+        </div>
+    </details>
 
     <div class="filter-section">
-        <h3>Jump to Neighborhood</h3>
-        <select id="neighborhood-select">
-            <option value="all">All Seattle (Reset View)</option>
-            <option value="Adams">Adams</option>
-            <option value="Atlantic">Atlantic</option>
-            <option value="Belltown">Belltown</option>
-            <option value="Briarcliff">Briarcliff</option>
-            <option value="Broadway">Broadway</option>
-            <option value="Bryant">Bryant</option>
-            <option value="Central Business District">Central Business District</option>
-            <option value="East Queen Anne">East Queen Anne</option>
-            <option value="Eastlake">Eastlake</option>
-            <option value="First Hill">First Hill</option>
-            <option value="Fremont">Fremont</option>
-            <option value="Green Lake">Green Lake</option>
-            <option value="Harbor Island">Harbor Island</option>
-            <option value="Harrison/Denny-Blaine">Harrison/Denny-Blaine</option>
-            <option value="Industrial District">Industrial District</option>
-            <option value="Interbay">Interbay</option>
-            <option value="International District">International District</option>
-            <option value="Laurelhurst">Laurelhurst</option>
-            <option value="Lawton Park">Lawton Park</option>
-            <option value="Leschi">Leschi</option>
-            <option value="Lower Queen Anne">Lower Queen Anne</option>
-            <option value="Loyal Heights">Loyal Heights</option>
-            <option value="Madison Park">Madison Park</option>
-            <option value="Madrona">Madrona</option>
-            <option value="Mann">Mann</option>
-            <option value="Minor">Minor</option>
-            <option value="Montlake">Montlake</option>
-            <option value="Mount Baker">Mount Baker</option>
-            <option value="North Beacon Hill">North Beacon Hill</option>
-            <option value="North Queen Anne">North Queen Anne</option>
-            <option value="Phinney Ridge">Phinney Ridge</option>
-            <option value="Pike-Market">Pike-Market</option>
-            <option value="Pioneer Square">Pioneer Square</option>
-            <option value="Portage Bay">Portage Bay</option>
-            <option value="Ravenna">Ravenna</option>
-            <option value="Roosevelt">Roosevelt</option>
-            <option value="Sand Point">Sand Point</option>
-            <option value="South Lake Union">South Lake Union</option>
-            <option value="Southeast Magnolia">Southeast Magnolia</option>
-            <option value="Stevens">Stevens</option>
-            <option value="Sunset Hill">Sunset Hill</option>
-            <option value="University District">University District</option>
-            <option value="View Ridge">View Ridge</option>
-            <option value="Wallingford">Wallingford</option>
-            <option value="West Queen Anne">West Queen Anne</option>
-            <option value="West Woodland">West Woodland</option>
-            <option value="Westlake">Westlake</option>
-            <option value="Whittier Heights">Whittier Heights</option>
-            <option value="Windermere">Windermere</option>
-            <option value="Yesler Terrace">Yesler Terrace</option>
-        </select>
+        <h3>Severity Filter</h3>
+        <input type="range" id="severity-filter" min="1" max="5" value="1" step="1" style="width:100%;">
+        <p>Showing: <span id="sev-val">1+</span></p>
     </div>
 
     <div class="legend">
-        <h3>Severity Legend</h3>
-        <div class="legend-item"><i style="background: #ff0055"></i> High (5)</div>
-        <div class="legend-item"><i style="background: #fbb03b"></i> Medium (3)</div>
-        <div class="legend-item"><i style="background: #00ffcc"></i> Low (1)</div>
-    </div>
-
-    <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
-    
-    <div class="filter-section">
-        <h3>Seattle Accessibility Stats</h3>
-        <div id="stats-panel">
-            <p><strong>Total Barriers:</strong> 81,973</p>
-            <p><strong>Most Common Issue:</strong> Curb Ramps</p>
-            <p><strong>Top Priority Area:</strong> Industrial District</p>
-            
-            <div class="mini-chart-container" style="margin-top: 15px;">
-                <p style="font-size: 11px; color: #aaa; margin-bottom: 5px;">Barrier Type Distribution:</p>
-                <div style="background: #444; height: 10px; width: 100%; border-radius: 5px; overflow: hidden; display: flex;">
-                    <div style="width: 33%; background: #ff0055;" title="Curb Ramps"></div>
-                    <div style="width: 23%; background: #fbb03b;" title="No Sidewalk"></div>
-                    <div style="width: 44%; background: #00ffcc;" title="Other"></div>
-                </div>
-                <p style="font-size: 10px; color: #888; margin-top: 5px;">
-                    <span style="color:#ff0055">●</span> Curb Ramps | 
-                    <span style="color:#fbb03b">●</span> Sidewalks | 
-                    <span style="color:#00ffcc">●</span> Other
-                </p>
-            </div>
-        </div>
+        <div class="legend-item"><i style="background: #ff0055"></i> High Severity</div>
+        <div class="legend-item"><i style="background: #fbb03b"></i> Mid Severity</div>
+        <div class="legend-item"><i style="background: #00ffcc"></i> Low Severity</div>
     </div>
 </div>
 

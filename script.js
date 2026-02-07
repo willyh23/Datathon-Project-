@@ -76,10 +76,12 @@ const neighborhoodData = {
     "Yesler Terrace": { score: 1273, count: 453, topIssue: "Curb Ramp" },
 };
 
-// Global toggle function
+// Global toggle function for the Index Info
 window.toggleNote = function() {
     const note = document.getElementById('index-note');
-    note.style.display = (note.style.display === 'none' || note.style.display === '') ? 'block' : 'none';
+    if (note) {
+        note.style.display = (note.style.display === 'none' || note.style.display === '') ? 'block' : 'none';
+    }
 };
 
 const defaultStatsHTML = `
@@ -148,7 +150,7 @@ function updateMapFilters() {
 
 document.getElementById('severity-filter').addEventListener('input', updateMapFilters);
 
-// 6. Neighborhood Logic
+// 6. Neighborhood Selection Logic
 document.getElementById('neighborhood-select').addEventListener('change', (e) => {
     updateMapFilters();
     const selected = e.target.value;
@@ -179,19 +181,17 @@ document.getElementById('neighborhood-select').addEventListener('change', (e) =>
                     <p><strong>Primary Issue:</strong> ${data.topIssue}</p>
                     
                     <button onclick="location.reload()" style="
-                        margin-top: 15px; 
+                        margin-top: 10px; 
                         width: 100%; 
-                        background: #ff0055; 
-                        color: white; 
-                        border: none; 
+                        background: transparent; 
+                        color: #ff0055; 
+                        border: 1px solid #ff0055; 
                         cursor: pointer; 
                         font-weight: bold;
-                        font-size: 11px; 
-                        padding: 10px 5px;
+                        font-size: 10px; 
+                        padding: 5px;
                         border-radius: 4px;
-                        text-transform: uppercase;
-                        letter-spacing: 1px;
-                    ">RESET DASHBOARD</button>
+                    ">RESET TO CITY STATS</button>
                 </div>
             `;
         }
