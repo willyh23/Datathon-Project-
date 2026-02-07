@@ -14,21 +14,19 @@ map.on('load', () => {
         data: 'data/Access_to_Everyday_Life.geojson' 
     });
 
-    // 2. Add the Heatmap Layer (Great for "Friction Zones")
+    // 2. Optimized Heatmap Layer
     map.addLayer({
         id: 'barrier-heat',
         type: 'heatmap',
         source: 'accessibility-data',
         maxzoom: 15,
         paint: {
-            // Increase weight as severity increases
+            // Use 'coalesce' to handle any missing severity values safely
             'heatmap-weight': [
-                'interpolate', ['linear'], ['get', 'severity'],
+                'interpolate', ['linear'], ['coalesce', ['get', 'severity'], 1],
                 0, 0,
                 5, 1
             ],
-            // Color ramp for heatmap. 
-            // Blue (low) -> Pink (high) looks great on dark mode
             'heatmap-color': [
                 'interpolate', ['linear'], ['heatmap-density'],
                 0, 'rgba(33,102,172,0)',
@@ -38,36 +36,82 @@ map.on('load', () => {
                 0.8, 'rgb(239,138,98)',
                 1, 'rgb(178,24,43)'
             ],
-            'heatmap-radius': 15,
-            'heatmap-opacity': 0.8
+            // --- INSERTED CODE STARTS HERE ---
+            'heatmap-intensity': [
+                'interpolate', ['linear'], ['zoom'],
+                11, 1,
+                15, 3
+            ],
+            'heatmap-radius': [
+                'interpolate', ['linear'], ['zoom'],
+                11, 2, 
+                15, 20
+            ],
+            'heatmap-opacity': [
+                'interpolate', ['linear'], ['zoom'],
+                13, 0.8,
+                15, 0 // Heatmap fades out as you zoom in close
+            ]
+            // --- INSERTED CODE ENDS HERE ---
         }
     });
 
-    // 3. Add individual points (Visible when zoomed in)
+    // 3. Individual points (Visible when zoomed in)
     map.addLayer({
         id: 'barrier-points',
         type: 'circle',
         source: 'accessibility-data',
-        minzoom: 14,
+        minzoom: 13, // Lowered slightly so points appear as heatmap fades
         paint: {
             'circle-radius': [
-                'interpolate', ['linear'], ['get', 'severity'],
-                1, 3,
-                5, 8
+                'interpolate', ['linear'], ['zoom'],
+                13, 1,
+                16, 8
             ],
             'circle-color': [
                 'interpolate', ['linear'], ['get', 'severity'],
-                1, '#00ffcc', // Cyan for low severity
-                3, '#fbb03b', // Orange for mid
-                5, '#ff0055'  // Bright Pink/Red for high
+                1, '#00ffcc', 
+                3, '#fbb03b', 
+                5, '#ff0055'  
             ],
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff'
         }
     });
+
+    // --- POPUP LOGIC ---
+    const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: true
+    });
+
+    map.on('click', 'barrier-points', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const props = e.features[0].properties;
+        const status = props.is_temporary ? "Temporary (Construction)" : "Permanent Issue";
+        
+        const content = `
+            <div style="color: #333; font-family: sans-serif;">
+                <h3 style="margin:0; color:#ff0055;">${props.label_type}</h3>
+                <hr>
+                <p><strong>Neighborhood:</strong> ${props.neighborhood}</p>
+                <p><strong>Severity:</strong> ${props.severity}/5</p>
+                <p><strong>Type:</strong> ${status}</p>
+            </div>
+        `;
+
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(content)
+            .addTo(map);
+    });
+
+    // Cursor change on hover
+    map.on('mouseenter', 'barrier-points', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'barrier-points', () => { map.getCanvas().style.cursor = ''; });
 });
 
-// Logic for Sidebar Radio Buttons (Switching Views)
+// Sidebar Logic
 document.querySelectorAll('input[name="viz"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         const value = e.target.value;
