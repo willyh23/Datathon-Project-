@@ -1,27 +1,29 @@
+// 1. Mapbox Access Token
 mapboxgl.accessToken = 'pk.eyJ1Ijoid2lsbHloMjMiLCJhIjoiY21obDBjN2ttMW1kdDJxcHI3a2s3YjR1dCJ9.1afNW3K_mxg4u55J1MPeaA';
 
+// 2. Initialize the Map
 const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/mapbox/dark-v11', 
-    center: [-122.3321, 47.6062], 
+    center: [-122.3321, 47.6062], // Seattle coordinates
     zoom: 11,
-    pitch: 45 
+    pitch: 45 // 3D tilt
 });
 
+// 3. Load Data and Layers
 map.on('load', () => {
     map.addSource('accessibility-data', {
         type: 'geojson',
         data: 'data/Access_to_Everyday_Life.geojson' 
     });
 
-    // 2. Optimized Heatmap Layer
+    // Heatmap Layer: Visualizes density of issues
     map.addLayer({
         id: 'barrier-heat',
         type: 'heatmap',
         source: 'accessibility-data',
         maxzoom: 15,
         paint: {
-            // Use 'coalesce' to handle any missing severity values safely
             'heatmap-weight': [
                 'interpolate', ['linear'], ['coalesce', ['get', 'severity'], 1],
                 0, 0,
@@ -36,7 +38,6 @@ map.on('load', () => {
                 0.8, 'rgb(239,138,98)',
                 1, 'rgb(178,24,43)'
             ],
-            // --- INSERTED CODE STARTS HERE ---
             'heatmap-intensity': [
                 'interpolate', ['linear'], ['zoom'],
                 11, 1,
@@ -50,18 +51,17 @@ map.on('load', () => {
             'heatmap-opacity': [
                 'interpolate', ['linear'], ['zoom'],
                 13, 0.8,
-                15, 0 // Heatmap fades out as you zoom in close
+                15, 0 
             ]
-            // --- INSERTED CODE ENDS HERE ---
         }
     });
 
-    // 3. Individual points (Visible when zoomed in)
+    // Point Layer: Individual markers visible when zoomed in
     map.addLayer({
         id: 'barrier-points',
         type: 'circle',
         source: 'accessibility-data',
-        minzoom: 13, // Lowered slightly so points appear as heatmap fades
+        minzoom: 13,
         paint: {
             'circle-radius': [
                 'interpolate', ['linear'], ['zoom'],
@@ -79,39 +79,57 @@ map.on('load', () => {
         }
     });
 
-    // --- POPUP LOGIC ---
-    const popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: true
-    });
-
-    map.on('click', 'barrier-points', (e) => {
-        const coordinates = e.features[0].geometry.coordinates.slice();
-        const props = e.features[0].properties;
-        const status = props.is_temporary ? "Temporary (Construction)" : "Permanent Issue";
-        
-        const content = `
-            <div style="color: #333; font-family: sans-serif;">
-                <h3 style="margin:0; color:#ff0055;">${props.label_type}</h3>
-                <hr>
-                <p><strong>Neighborhood:</strong> ${props.neighborhood}</p>
-                <p><strong>Severity:</strong> ${props.severity}/5</p>
-                <p><strong>Type:</strong> ${status}</p>
-            </div>
-        `;
-
-        new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(content)
-            .addTo(map);
-    });
-
-    // Cursor change on hover
-    map.on('mouseenter', 'barrier-points', () => { map.getCanvas().style.cursor = 'pointer'; });
-    map.on('mouseleave', 'barrier-points', () => { map.getCanvas().style.cursor = ''; });
+    // Initial state: Start with heatmap visible, points hidden
+    map.setLayoutProperty('barrier-points', 'visibility', 'none');
 });
 
-// Sidebar Logic
+// 4. Combined Filter Logic (This fixes the Slider and Dropdown)
+function updateMapFilters() {
+    // Get values from the HTML elements
+    const minSeverity = parseInt(document.getElementById('severity-filter').value);
+    const neighborhood = document.getElementById('neighborhood-select').value;
+
+    // Build the filter array
+    let filters = ['all', ['>=', ['get', 'severity'], minSeverity]];
+
+    // If a neighborhood is selected, add it to the filter
+    if (neighborhood !== 'all') {
+        filters.push(['==', ['get', 'neighborhood'], neighborhood]);
+    }
+
+    // Apply the combined filter to both layers
+    if (map.getLayer('barrier-heat')) map.setFilter('barrier-heat', filters);
+    if (map.getLayer('barrier-points')) map.setFilter('barrier-points', filters);
+
+    // Update the number text next to the slider
+    document.getElementById('sev-val').innerText = minSeverity + "+";
+}
+
+// 5. Setup UI Event Listeners
+
+// Severity Slider
+document.getElementById('severity-filter').addEventListener('input', updateMapFilters);
+
+// Neighborhood Dropdown
+document.getElementById('neighborhood-select').addEventListener('change', (e) => {
+    updateMapFilters();
+    
+    // Fly to the neighborhood when selected
+    if (e.target.value !== 'all') {
+        const features = map.querySourceFeatures('accessibility-data', {
+            filter: ['==', ['get', 'neighborhood'], e.target.value]
+        });
+        if (features.length > 0) {
+            map.flyTo({
+                center: features[0].geometry.coordinates,
+                zoom: 14,
+                essential: true
+            });
+        }
+    }
+});
+
+// Heatmap/Points Toggle Buttons
 document.querySelectorAll('input[name="viz"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         const value = e.target.value;
@@ -124,3 +142,33 @@ document.querySelectorAll('input[name="viz"]').forEach(radio => {
         }
     });
 });
+
+// 6. Interactive Popups (Simplified to Neighborhood, Severity, and Label)
+map.on('click', 'barrier-points', (e) => {
+    const props = e.features[0].properties;
+    const coordinates = e.features[0].geometry.coordinates.slice();
+    
+    // Formatting "NoCurbRamp" -> "No Curb Ramp"
+    const cleanType = props.label_type.replace(/([A-Z])/g, ' $1').trim();
+
+    new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`
+            <div style="font-family: sans-serif; min-width: 150px; color: #333;">
+                <h3 style="margin:0; color:#ff0055; font-size:16px; border-bottom: 2px solid #ff0055; padding-bottom: 4px;">
+                    ${cleanType}
+                </h3>
+                <div style="margin-top: 10px;">
+                    <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Neighborhood</p>
+                    <p style="margin: 0 0 8px 0; font-weight: bold;">${props.neighborhood}</p>
+                    <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Severity Score</p>
+                    <p style="margin: 0; font-weight: bold;">${props.severity} / 5</p>
+                </div>
+            </div>
+        `)
+        .addTo(map);
+});
+
+// 7. Mouse interactions
+map.on('mouseenter', 'barrier-points', () => { map.getCanvas().style.cursor = 'pointer'; });
+map.on('mouseleave', 'barrier-points', () => { map.getCanvas().style.cursor = ''; });

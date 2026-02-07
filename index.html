@@ -5,6 +5,7 @@
     <title>Seattle Accessibility | Datathon</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,22 +15,79 @@
     <p class="subtitle">DubsTech Datathon 2026: Accessibility Analysis</p>
 
     <div class="filter-section">
-        <h3>Layer Toggle</h3>
+        <h3>View Mode</h3>
         <label><input type="radio" name="viz" value="heatmap" checked> Heatmap (Density)</label><br>
         <label><input type="radio" name="viz" value="points"> Individual Barriers</label>
     </div>
 
     <div class="filter-section">
         <h3>Filter by Severity</h3>
-        <input type="range" id="severity-filter" min="1" max="5" value="1">
+        <input type="range" id="severity-filter" min="1" max="5" value="1" step="1">
         <p>Showing Severity: <span id="sev-val">1+</span></p>
     </div>
 
+    <div class="filter-section">
+        <h3>Jump to Neighborhood</h3>
+        <select id="neighborhood-select">
+            <option value="all">All Seattle</option>
+            <option value="Adams">Adams</option>
+            <option value="Atlantic">Atlantic</option>
+            <option value="Belltown">Belltown</option>
+            <option value="Briarcliff">Briarcliff</option>
+            <option value="Broadway">Broadway</option>
+            <option value="Bryant">Bryant</option>
+            <option value="Central Business District">Central Business District</option>
+            <option value="East Queen Anne">East Queen Anne</option>
+            <option value="Eastlake">Eastlake</option>
+            <option value="First Hill">First Hill</option>
+            <option value="Fremont">Fremont</option>
+            <option value="Green Lake">Green Lake</option>
+            <option value="Harbor Island">Harbor Island</option>
+            <option value="Harrison/Denny-Blaine">Harrison/Denny-Blaine</option>
+            <option value="Industrial District">Industrial District</option>
+            <option value="Interbay">Interbay</option>
+            <option value="International District">International District</option>
+            <option value="Laurelhurst">Laurelhurst</option>
+            <option value="Lawton Park">Lawton Park</option>
+            <option value="Leschi">Leschi</option>
+            <option value="Lower Queen Anne">Lower Queen Anne</option>
+            <option value="Loyal Heights">Loyal Heights</option>
+            <option value="Madison Park">Madison Park</option>
+            <option value="Madrona">Madrona</option>
+            <option value="Mann">Mann</option>
+            <option value="Minor">Minor</option>
+            <option value="Montlake">Montlake</option>
+            <option value="Mount Baker">Mount Baker</option>
+            <option value="North Beacon Hill">North Beacon Hill</option>
+            <option value="North Queen Anne">North Queen Anne</option>
+            <option value="Phinney Ridge">Phinney Ridge</option>
+            <option value="Pike-Market">Pike-Market</option>
+            <option value="Pioneer Square">Pioneer Square</option>
+            <option value="Portage Bay">Portage Bay</option>
+            <option value="Ravenna">Ravenna</option>
+            <option value="Roosevelt">Roosevelt</option>
+            <option value="Sand Point">Sand Point</option>
+            <option value="South Lake Union">South Lake Union</option>
+            <option value="Southeast Magnolia">Southeast Magnolia</option>
+            <option value="Stevens">Stevens</option>
+            <option value="Sunset Hill">Sunset Hill</option>
+            <option value="University District">University District</option>
+            <option value="View Ridge">View Ridge</option>
+            <option value="Wallingford">Wallingford</option>
+            <option value="West Queen Anne">West Queen Anne</option>
+            <option value="West Woodland">West Woodland</option>
+            <option value="Westlake">Westlake</option>
+            <option value="Whittier Heights">Whittier Heights</option>
+            <option value="Windermere">Windermere</option>
+            <option value="Yesler Terrace">Yesler Terrace</option>
+        </select>
+    </div>
+
     <div class="legend">
-        <h3>Priority Level</h3>
-        <i style="background: #f28cb1"></i> High Severity (5)<br>
-        <i style="background: #fbb03b"></i> Medium Severity (3)<br>
-        <i style="background: #223b53"></i> Low Severity (1)
+        <h3>Severity Legend</h3>
+        <div class="legend-item"><i style="background: #ff0055"></i> High (5)</div>
+        <div class="legend-item"><i style="background: #fbb03b"></i> Medium (3)</div>
+        <div class="legend-item"><i style="background: #00ffcc"></i> Low (1)</div>
     </div>
 </div>
 
